@@ -1,0 +1,10 @@
+{
+    "bot_token": "XXXX:XXXXXX",
+    "group_id": "-XXXXXXX",
+    "bucleCalls" : "3600",
+    "url": "https://www.covermanager.com/reservation/update_hour_people/0",
+    "restaurant": "restaurante-XXXX--RESTAURANT ID--XXXXX",
+    "total_days": 5,
+    "sleeper": 1
+}
+  
