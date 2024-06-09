@@ -27,8 +27,12 @@ sleeper = args.sleeper
 start_date = datetime.now()
 end_date = start_date + timedelta(days=total_days)
 
+# Crear el directorio Logs si no existe
+logs_dir = 'Logs'
+os.makedirs(logs_dir, exist_ok=True)
+
 # Nombre del archivo JSON
-json_filename = 'reservas_disponibles.json'
+json_filename = os.path.join(logs_dir, f'reservas_{restaurantid}.json')
 
 # Cargar el archivo JSON existente, si existe
 if os.path.exists(json_filename):
@@ -39,6 +43,7 @@ else:
 
 # Bandera para indicar si hubo cambios
 hubo_cambios = False
+restaurante_mensaje_mostrado = False
 
 # Iterar sobre cada día en el rango de fechas
 current_date = start_date
@@ -85,6 +90,9 @@ while current_date <= end_date:
                 if fecha_dia not in reservas_disponibles or set(reservas_disponibles[fecha_dia]) != set(horas_disponibles):
                     reservas_disponibles[fecha_dia] = horas_disponibles
                     hubo_cambios = True
+                    if not restaurante_mensaje_mostrado:
+                        print(f"*{restaurantid}*")
+                        restaurante_mensaje_mostrado = True 
                     print(f"{fecha_dia}:")
                     print(f"{', '.join(horas_disponibles)}")
             else:
@@ -101,6 +109,7 @@ while current_date <= end_date:
             #print(f"No hay horas disponibles para {fecha_dia}")
     
     else:
+        print(f"Restaurante: {restaurantid}")
         print(f"Error en la solicitud: {response.status_code}")
         print(response.text)
     

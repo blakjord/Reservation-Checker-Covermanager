@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Configuración</title>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }}
+        .container {{
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 500px;
+        }}
+        h1 {{
+            text-align: center;
+            color: #333;
+        }}
+        form {{
+            display: flex;
+            flex-direction: column;
+        }}
+        label {{
+            margin-bottom: 5px;
+            color: #555;
+        }}
+        input[type="text"] {{
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }}
+        button[type="submit"] {{
+            padding: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }}
+        button[type="submit"]:hover {{
+            background-color: #218838;
+        }}
+        .add-button {{
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }}
+        .add-button:hover {{
+            background-color: #0056b3;
+        }}
+        .remove-button {{
+            padding: 5px 10px;
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }}
+        .remove-button:hover {{
+            background-color: #c82333;
+        }}
+        .check-button {{
+            padding: 5px 10px;
+            background-color: #edb100;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }}
+        .check-button:hover {{
+            background-color: #d39e00;
+        }}
+        .saved-message {{
+            text-align: center;
+            margin-top: 20px;
+            color: #28a745;
+        }}
+    </style>
+    <script>
+        async function addRestaurantField() {{
+            const container = document.getElementById("restaurants_container");
+            const inputCount = container.getElementsByTagName("input").length;
+            const newInput = document.createElement("div");
+            newInput.innerHTML = `
+                <label for="restaurant_${{inputCount}}">Restaurant ID:</label>
+                <input type="text" id="restaurant_${{inputCount}}" name="restaurant_${{inputCount}}" required>
+                <button type="button" class="check-button" onclick="checkRestaurantID(this)">Check</button>
+                <button type="button" class="remove-button" onclick="removeRestaurantField(this)">Eliminar</button>
+                <br><br>`;
+            container.appendChild(newInput);
+        }}
+    
+        function removeRestaurantField(button) {{
+            const container = document.getElementById("restaurants_container");
+            container.removeChild(button.parentElement);
+        }}
+    
+        async function checkRestaurantID(button) {{
+            const input = button.parentElement.querySelector("input[type='text']");
+            const restaurantID = input.value;
+            console.log(restaurantID);
+
+            // Verificar campo vacio
+            if (restaurantID === "") {{
+                console.log('Debe rellenar el campo con el ID del restaurante');
+                alert('Debe rellenar el campo con el ID del restaurante');
+                return;
+            }}
+
+            // Definir ambas URLs
+            const url1 = "https://www.covermanager.com/reservation/module_restaurant/restaurante-";
+            const url2 = "https://www.covermanager.com/reservation/module_restaurant/";
+
+            try {{
+                // Intentar la primera URL
+                let response = await fetch(url1 + restaurantID);
+                if (!response.ok) {{
+                    throw new Error('URL Invalida, prueba con otra dirección');
+                }}
+                let html = await response.text();
+                if (html === "El modulo de reservas está temporalmente desactivado") {{
+                    throw new Error('URL Invalida, prueba con otra dirección');
+                }} else {{
+                    alert("¡Restaurante Localizado!");
+                    input.value = "restaurante-" + restaurantID;
+                    return;
+                }}
+            }} catch (error) {{
+                console.error("Error en la llamada con URL1 restaurantante normal:", error);
+
+                try {{
+                    // Intentar la segunda URL si la primera falla
+                    let response = await fetch(url2 + restaurantID);
+                    if (!response.ok) {{
+                        throw new Error('URL Invalida, prueba con otra dirección');
+                    }}
+                    let html = await response.text();
+                    if (html === "El modulo de reservas está temporalmente desactivado") {{
+                        throw new Error('URL Invalida, prueba con otra dirección');
+                    }} else {{
+                        alert("¡Restaurante Top Localizado!");
+                        return;
+                    }}
+                }} catch (error) {{
+                    console.error("Error en la llamada con URL2 restaurantante top:", error);
+                    alert("¡Error al verificar el Restaurant ID!");
+                }}
+            }}
+        }}
+
+
+            async function checkAllRestaurantIDsAndSubmitForm() {{
+                const container = document.getElementById("restaurants_container");
+                const inputs = container.querySelectorAll("input[type='text']");
+                let allIDsValid = true;
+
+                for (const input of inputs) {{
+                    const restaurantID = input.value;
+                    console.log(restaurantID);
+
+                    // Verificar campo vacío
+                    if (restaurantID === "") {{
+                        console.log('Debe rellenar el campo con el ID del restaurante');
+                        alert('Debe rellenar el campo con el ID del restaurante');
+                        allIDsValid = false;
+                        break;
+                    }}
+
+                    // Definir ambas URLs
+                    const url1 = "https://www.covermanager.com/reservation/module_restaurant/restaurante-";
+                    const url2 = "https://www.covermanager.com/reservation/module_restaurant/";
+
+                    try {{
+                        // Intentar la primera URL
+                        let response = await fetch(url1 + restaurantID);
+                        if (!response.ok) {{
+                            throw new Error(`Error al verificar el restaurante con ID ${{restaurantID}}`);
+                        }}
+                        let html = await response.text();
+                        if (html === "El modulo de reservas está temporalmente desactivado") {{
+                            throw new Error(`El restaurante con ID ${{restaurantID}} no es correcto`);
+                        }} else {{
+                            console.log(`Restaurante con ID ${{restaurantID}} verificado`);
+                            input.value = "restaurante-" + restaurantID;
+                            continue; // Continuar con el siguiente restaurante
+                        }}
+                    }} catch (error) {{
+                        console.error("Error al verificar el restaurante con URL1:", error);
+
+                        try {{
+                            // Intentar la segunda URL si la primera falla
+                            let response = await fetch(url2 + restaurantID);
+                            if (!response.ok) {{
+                                throw new Error(`Error al verificar el restaurante con ID ${{restaurantID}}`);
+                            }}
+                            let html = await response.text();
+                            if (html === "El modulo de reservas está temporalmente desactivado") {{
+                                throw new Error(`El restaurante con ID ${{restaurantID}} no es correcto`);
+                            }} else {{
+                                console.log(`Restaurante con ID ${{restaurantID}} (URL2) verificado`);
+                                continue; // Continuar con el siguiente restaurante
+                            }}
+                        }} catch (error) {{
+                            console.error("Error al verificar el restaurante con URL2:", error);
+                            alert(error.message);
+                            allIDsValid = false;
+                            break;
+                        }}
+                    }}
+                }}
+
+                if (allIDsValid) {{
+                    document.getElementById("config_form").submit();
+                }}
+            }}
+
+
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Formulario de Configuración</h1>
+        <form id="config_form" method="POST" onsubmit="checkAllRestaurantIDsAndSubmitForm(); return false;">
+
+            <label style="display: none" for="url">URL Call Covermanager:</label>
+            <input style="display: none" type="text" id="url" name="url" value="https://www.covermanager.com/reservation/update_hour_people/0" required><br><br>
+            
+            <label for="bot_token">Telegram Bot Token:</label>
+            <input type="text" id="bot_token" name="bot_token" value="{bot_token}" required><br><br>
+            
+            <label for="group_id">Telegram Group ID:</label>
+            <input type="text" id="group_id" name="group_id" value="{group_id}" required><br><br>
+            
+            <div id="restaurants_container">
+                <label for="restaurant_0">Restaurant ID:</label>
+                <input type="text" id="restaurant_0" name="restaurant_0" value="{restaurant_0}" required>
+                <button type="button" class="check-button" onclick="checkRestaurantID(this)">Check</button>
+                <br><br>
+            </div>
+            <button type="button" class="add-button" onclick="addRestaurantField()">Agregar Restaurant ID</button><br><br>
+            
+            <label for="total_days">Dias a Restrear:</label>
+            <input type="text" id="total_days" name="total_days" value="{total_days}" required><br><br>
+            
+            <label for="bucleCalls">Segundos Entre Escaneo:</label>
+            <input type="text" id="bucleCalls" name="bucleCalls" value="{bucleCalls}" required><br><br>
+            
+            <label for="sleeper">Segundos Entre Llamada:</label>
+            <input type="text" id="sleeper" name="sleeper" value="{sleeper}" required><br><br>
+            
+            <button type="submit">Guardar Configuración</button>
+        </form>
+        <div class="saved-message">{saved_message}</div>
+    </div>
+</body>
+</html>
